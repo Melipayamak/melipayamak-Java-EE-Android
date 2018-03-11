@@ -92,8 +92,8 @@ ReceiveSoapClient receiveSoapClient = new ReceiveSoapClient();
 سپس درون فایل build.gradle کتابخانۀ kSOAP را به صورت زیر به پروژه خود اضافه کنید:
   
  </div>
- ```js
- apply plugin: 'com.android.application'
+```js
+apply plugin: 'com.android.application'
 
 android {
  compileSdkVersion 23
