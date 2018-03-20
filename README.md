@@ -25,16 +25,16 @@
 
 
 ```js
-const string username = "username";
-const string password = "password";
-const string from = "5000...";
-const string to = "09123456789";
-const string text = "تست وب سرویس ملی پیامک";
-const bool isFlash = false;
+final String username = "username";
+final String password = "password";
+final String from = "5000...";
+final String to = "09123456789";
+final String text = "تست وب سرویس ملی پیامک";
+final boolean isFlash = false;
 SoapClient soapClient = new SoapClient(username, password);
 soapClient.SendSimpleSMS2(to, from, text, isFlash);
 //یا برای ارسال به مجموعه ای از مخاطبین
-soapClient.SendSimpleSMS(string[] { to }, from, text, isFlash);
+soapClient.SendSimpleSMS(new String[]{to}, from, text, isFlash);
 ```
 
 <div dir='rtl'>
@@ -140,7 +140,7 @@ StrictMode.setThreadPolicy(policy);
 
 ```js
 restClient.Send(to, from, text, isFlash);
-soapClient.SendSimpleSMS(new string[] { to }, from, text, isFlash);
+soapClient.SendSimpleSMS(new String[] { to }, from, text, isFlash);
 ```
 <div dir='rtl'>
   در آرگومان سوم روش soap میتوانید از هر تعداد مخاطب به عنوان آرایه استفاده کنید
