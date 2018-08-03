@@ -217,7 +217,7 @@ soapClient.AddMultipleSchedule(to[], from, text[], isflash, scheduleDateTime[], 
 
 #### ارسال سررسید
 ```js
-soapClient.AddNewUsance(to, from, text, isflash, scheduleStartDateTime, countRepeat, scheduleEndDateTime, periodType);
+soapClient.AddUsance(to, from, text, isflash, scheduleStartDateTime, repeatAfterDays, scheduleEndDateTime);
 ```
 
 #### مشاهده وضعیت ارسال زماندار
