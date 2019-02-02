@@ -125,6 +125,41 @@ public class SoapClient {
 
         return response.getProperty(0);
     }
+    public Object SendByBaseNumber(String[] text, String to, long bodyId) {
+
+        String METHOD_NAME = "SendByBaseNumber";
+        SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
+
+        String _text = "<string>" + TextUtils.join("</string><string>", text) + "</string>";
+        //Use this to add parameters
+        request.addProperty("username", Username);
+        request.addProperty("password", Password);
+        request.addProperty("text", _text);
+        request.addProperty("to", to);
+        request.addProperty("bodyId", String.valueOf(bodyId));
+
+        String SOAP_ACTION = NAMESPACE + METHOD_NAME;
+        SoapObject response = getXMLResult(SEND_URL, SOAP_ACTION, request);
+
+        return response.getProperty(0);
+    }
+    public Object SendByBaseNumber2(String text, String to, long bodyId) {
+
+        String METHOD_NAME = "SendByBaseNumber2";
+        SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
+
+        //Use this to add parameters
+        request.addProperty("username", Username);
+        request.addProperty("password", Password);
+        request.addProperty("text", text);
+        request.addProperty("to", to);
+        request.addProperty("bodyId", String.valueOf(bodyId));
+
+        String SOAP_ACTION = NAMESPACE + METHOD_NAME;
+        SoapObject response = getXMLResult(SEND_URL, SOAP_ACTION, request);
+
+        return response.getProperty(0);
+    }
     public Object GetCredit() {
 
         String METHOD_NAME = "GetCredit";
@@ -144,10 +179,11 @@ public class SoapClient {
         String METHOD_NAME = "GetDeliveries";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
 
+        String _recIds = "<long>" + TextUtils.join("</long><long>", recIds) + "</long>";
         //Use this to add parameters
         request.addProperty("username", Username);
         request.addProperty("password", Password);
-        request.addProperty("recIds", recIds);
+        request.addProperty("recIds", _recIds);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
         SoapObject response = getXMLResult(SEND_URL, SOAP_ACTION, request);
@@ -177,11 +213,12 @@ public class SoapClient {
         String METHOD_NAME = "SendSimpleSMS";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
 
+        String _to = "<string>" + TextUtils.join("</string><string>", to) + "</string>";
         //Use this to add parameters
         request.addProperty("username", Username);
         request.addProperty("password", Password);
         request.addProperty("from", from);
-        request.addProperty("to", to);
+        request.addProperty("to", _to);
         request.addProperty("text", text);
         request.addProperty("isflash", String.valueOf(isFlash));
 
@@ -190,11 +227,12 @@ public class SoapClient {
 
         return response.getProperty(0);
     }
-    public Object SendSms(String to, String from, String text, boolean isFlash, String udh, long[] recId, Base64 status) {
+    public Object SendSms(String to, String from, String text, boolean isFlash, String udh, long[] recIds, Base64 status) {
 
         String METHOD_NAME = "SendSms";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
 
+        String _recIds = "<long>" + TextUtils.join("</long><long>", recIds) + "</long>";
         //Use this to add parameters
         request.addProperty("username", Username);
         request.addProperty("password", Password);
@@ -203,7 +241,7 @@ public class SoapClient {
         request.addProperty("text", text);
         request.addProperty("isflash", String.valueOf(isFlash));
         request.addProperty("udh", udh);
-        request.addProperty("recId", recId);
+        request.addProperty("recId", _recIds);
         request.addProperty("status", status);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
@@ -697,11 +735,12 @@ public class SoapClient {
         String METHOD_NAME = "AddNumber";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
 
+        String _numbers = "<string>" + TextUtils.join("</string><string>", mobileNumbers) + "</string>";
         //Use this to add parameters
         request.addProperty("username", Username);
         request.addProperty("password", Password);
         request.addProperty("branchId", branchId);
-        request.addProperty("mobileNumbers", mobileNumbers);
+        request.addProperty("mobileNumbers", _numbers);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
         SoapObject response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
@@ -843,20 +882,23 @@ public class SoapClient {
         return response.getProperty(0);
     }
     public Object SendMultipleSMS(String[] to, String from, String[] text, boolean isflash, String udh,
-                                  long[] recId) {
+                                  long[] recIds) {
 
         String METHOD_NAME = "SendMultipleSMS";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
 
+        String _to = "<string>" + TextUtils.join("</string><string>", to) + "</string>";
+        String _text = "<string>" + TextUtils.join("</string><string>", text) + "</string>";
+        String _recIds = "<long>" + TextUtils.join("</long><long>", recIds) + "</long>";
         //Use this to add parameters
         request.addProperty("username", Username);
         request.addProperty("password", Password);
-        request.addProperty("to", to);
+        request.addProperty("to", _to);
         request.addProperty("from", from);
-        request.addProperty("text", text);
+        request.addProperty("text", _text);
         request.addProperty("isflash", String.valueOf(isflash));
         request.addProperty("udh", udh);
-        request.addProperty("recId", recId);
+        request.addProperty("recId", _recIds);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
         SoapObject response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
@@ -902,20 +944,22 @@ public class SoapClient {
 
         return response.getProperty(0);
     }
-    public Object AddMultipleSchedule(String[] to, String from, String[] text, boolean isFlash, Date[] scheduleDateTime,
-                              String period) {
+    public Object AddMultipleSchedule(String[] to, String from, String[] text, boolean isFlash, Date[] scheduleDateTime, String period) {
 
         String METHOD_NAME = "AddMultipleSchedule";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
 
+        String _to = "<string>" + TextUtils.join("</string><string>", to) + "</string>";
+        String _text = "<string>" + TextUtils.join("</string><string>", text) + "</string>";
+        String _date = "<dateTime>" + TextUtils.join("</dateTime><dateTime>", scheduleDateTime) + "</dateTime>";
         //Use this to add parameters
         request.addProperty("username", Username);
         request.addProperty("password", Password);
         request.addProperty("from", from);
-        request.addProperty("to", to);
-        request.addProperty("text", text);
+        request.addProperty("to", _to);
+        request.addProperty("text", _text);
         request.addProperty("isflash", String.valueOf(isFlash));
-        request.addProperty("scheduleDateTime", scheduleDateTime);
+        request.addProperty("scheduleDateTime", _date);
         request.addProperty("period", period);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
