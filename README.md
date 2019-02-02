@@ -146,6 +146,13 @@ soapClient.SendSimpleSMS(new String[] { to }, from, text, isFlash);
   در آرگومان سوم روش soap میتوانید از هر تعداد مخاطب به عنوان آرایه استفاده کنید
 </div>
 
+#### ارسال از خط خدماتی اشتراکی
+
+```js
+restClient.SendByBaseNumber(text, to, bodyId);
+soapClient.SendByBaseNumber2(text, to, bodyId);
+```
+
 #### دریافت وضعیت ارسال
 ```js
 restClient.GetDelivery(recId);
