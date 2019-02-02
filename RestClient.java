@@ -2,12 +2,14 @@ public class RestClient {
 
   private final String endpoint = "https://rest.payamak-panel.com/api/SendSMS/";
   private final String sendOp = "SendSMS";
+  private final String sendByBaseNumber="BaseServiceNumber";
 
   private final String getDeliveryOp = "GetDeliveries2";
   private final String getMessagesOp = "GetMessages";
   private final String getCreditOp = "GetCredit";
   private final String getBasePriceOp = "GetBasePrice";
   private final String getUserNumbersOp = "GetUserNumbers";
+
 
   private String UserName;
   private String Password;
@@ -28,6 +30,45 @@ public class RestClient {
       values.put("isFlash" , String.valueOf(isflash));
 
       URL url = new URL(endpoint + sendOp);
+      HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+      conn.setRequestMethod("POST");
+
+      StringBuilder result = new StringBuilder();
+      String line;
+
+      try {
+          conn.setDoOutput(true);
+          conn.setChunkedStreamingMode(0);
+
+          //consider encoding
+          OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
+          writer.write(getPostParamString(values));
+          writer.flush();
+          writer.close();
+
+          //you can deserialize response as it is json
+          BufferedReader r = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+          while ((line = r.readLine()) != null) {
+              result.append(line).append('\n');
+          }
+
+      } finally {
+          conn.disconnect();
+      }
+
+      return String.valueOf(result);
+  }
+
+  public String SendByBaseNumber(String text, String to, long bodyId) throws IOException {
+
+      Hashtable<String, String> values = new Hashtable<>();
+      values.put("username", UserName);
+      values.put("password", Password);
+      values.put("to" , to);
+      values.put("text" , text);
+      values.put("bodyId" , String.valueOf(bodyId));
+
+      URL url = new URL(endpoint + sendByBaseNumber);
       HttpURLConnection conn = (HttpURLConnection) url.openConnection();
       conn.setRequestMethod("POST");
 
