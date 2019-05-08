@@ -1038,6 +1038,44 @@ public class SoapClient {
 
         return response.getProperty(0);
     }
+    public Object SendBulkSpeechText(String title, String body, String receivers, String DateToSend, int repeatCount) {
+
+        String METHOD_NAME = "SendBulkSpeechText";
+        SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
+
+        //Use this to add parameters
+        request.addProperty("username", Username);
+        request.addProperty("password", Password);
+        request.addProperty("title", title);
+        request.addProperty("body", body);
+        request.addProperty("receivers", receivers);
+        request.addProperty("DateToSend", DateToSend);
+        request.addProperty("repeatCount", repeatCount);
+
+        String SOAP_ACTION = NAMESPACE + METHOD_NAME;
+        SoapObject response = getXMLResult(VOICE_URL, SOAP_ACTION, request);
+
+        return response.getProperty(0);
+    }
+    public Object SendBulkVoiceSMS(String title, int voiceFileId, String receivers, String DateToSend, int repeatCount) {
+
+        String METHOD_NAME = "SendBulkVoiceSMS";
+        SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
+
+        //Use this to add parameters
+        request.addProperty("username", Username);
+        request.addProperty("password", Password);
+        request.addProperty("title", title);
+        request.addProperty("voiceFileId", voiceFileId);
+        request.addProperty("receivers", receivers);
+        request.addProperty("DateToSend", DateToSend);
+        request.addProperty("repeatCount", repeatCount);
+
+        String SOAP_ACTION = NAMESPACE + METHOD_NAME;
+        SoapObject response = getXMLResult(VOICE_URL, SOAP_ACTION, request);
+
+        return response.getProperty(0);
+    }
     public Object SendSMSWithSpeechText(String smsBody, String speechBody, String from, String to) {
 
         String METHOD_NAME = "SendSMSWithSpeechText";
@@ -1076,9 +1114,22 @@ public class SoapClient {
 
         return response.getProperty(0);
     }
+    public Object UploadVoiceFile(String title, String base64StringFile) {
+
+        String METHOD_NAME = "UploadVoiceFile";
+        SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
+
+        //Use this to add parameters
+        request.addProperty("username", Username);
+        request.addProperty("password", Password);
+        request.addProperty("title", title);
+        request.addProperty("base64StringFile", base64StringFile);
+
+        String SOAP_ACTION = NAMESPACE + METHOD_NAME;
+        SoapObject response = getXMLResult(VOICE_URL, SOAP_ACTION, request);
+
+        return response.getProperty(0);
+    }
+
 
 }
-
-
-
-
