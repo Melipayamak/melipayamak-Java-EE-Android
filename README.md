@@ -258,17 +258,17 @@ soapClient.SendSMSWithSpeechTextBySchduleDate(smsBody, speechBody, from, to, sch
 soapClient.GetSendSMSWithSpeechTextStatus(recId);
 ```
 
-####
+#### تماس انبوه زماندار
 ```js
 soapClient.SendBulkSpeechText(title, body, receivers, DateToSend, repeatCount);
 ```
 
-####
+#### تماس انبوه زماندار با انتخاب فایل
 ```js
 soapClient.SendBulkVoiceSMS(title, voiceFileId, receivers, DateToSend, repeatCount);
 ```
 
-####
+#### آپلود فایل صوتی
 ```js
 soapClient.UploadVoiceFile(title, base64StringFile);
 ```
