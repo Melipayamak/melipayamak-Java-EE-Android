@@ -237,6 +237,11 @@ soapClient.GetScheduleStatus(schId);
 soapClient.RemoveSchedule(schId);
 ```
 
+<div dir='rtl'>
+
+### وب سرویس پیامک صوتی
+
+</div>
 
 ####  ارسال پیامک همراه با تماس صوتی
 ```js
@@ -252,6 +257,22 @@ soapClient.SendSMSWithSpeechTextBySchduleDate(smsBody, speechBody, from, to, sch
 ```js
 soapClient.GetSendSMSWithSpeechTextStatus(recId);
 ```
+
+####
+```js
+soapClient.SendBulkSpeechText(title, body, receivers, DateToSend, repeatCount);
+```
+
+####
+```js
+soapClient.SendBulkVoiceSMS(title, voiceFileId, receivers, DateToSend, repeatCount);
+```
+
+####
+```js
+soapClient.UploadVoiceFile(title, base64StringFile);
+```
+
 <div dir='rtl'>
   
 ### وب سرویس ارسال انبوه/منطقه ای
