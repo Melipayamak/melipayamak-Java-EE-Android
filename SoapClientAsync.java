@@ -21,7 +21,7 @@ import java.sql.Date;
 import java.util.Collections;
 
 
-public class SoapClient {
+public class SoapClientAsync extends AsyncTask<MPTaskParams, Integer, SoapObject> {
 
     private static String NAMESPACE = "http://tempuri.org/";
     private static String SEND_URL = "http://api.payamak-panel.com/post/send.asmx";
@@ -36,83 +36,55 @@ public class SoapClient {
 
     private static final String TAG = "melipayamak";
 
-
     //constructor
-    public SoapClient(String username, String password){
+    public SoapClientAsync(String username, String password){
         Username = username;
         Password = password;
     }
 
-
-    private static SoapObject getServiceResult(String strURL, String strSoapAction, SoapObject request)
-            throws XmlPullParserException, IOException {
-
-
+    @Override
+    protected SoapObject doInBackground(MPTaskParams... params) {
         // Create envelope
         //Declare the version of the SOAP request
         SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
         envelope.dotNet = true;
 
         // Set output SOAP object
-        envelope.setOutputSoapObject(request);
+        envelope.setOutputSoapObject(params[0].request);
 
         // Create HTTP call object
-        HttpTransportSE androidHttpTransport = new HttpTransportSE(strURL);
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(params[0].url);
         androidHttpTransport.debug = true;
 
         SoapObject response;
 
-        // StringBuffer result = null;
-
         System.setProperty("http.keepAlive", "false");
 
+        // Invoke web service
         try {
-            // Invoke web service
-            androidHttpTransport.call(strSoapAction, envelope);
-
-            // Get the response
-            response = (SoapObject) envelope.bodyIn;
-            if(response != null)
-                Log.d(TAG, response.toString());
-
-
-        } catch (SoapFault e) {
-            Log.e(TAG, "SoapFaultException");
-            throw e;
-        } catch (HttpResponseException e) {
-            Log.e(TAG, "HttpResponseException");
-            throw e;
-        } catch (XmlPullParserException e) {
-            Log.e(TAG, "XmlPullParserException");
-            throw e;
+            androidHttpTransport.call(params[0].soapAction, envelope);
         } catch (IOException e) {
-            Log.e(TAG, "IOException");
-            throw e;
+            e.printStackTrace();
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
         }
+
+        // Get the response
+        response = (SoapObject) envelope.bodyIn;
+        if(response != null)
+            Log.d(TAG, response.toString());
+
         return response;
     }
 
 
-    protected SoapObject getXMLResult(String url, String soapAction, SoapObject request) {
-        try {
-            return getServiceResult(url, soapAction, request);
-        } catch (SoapFault e) {
-            e.printStackTrace();
-            return null;
-        } catch (HttpResponseException e) {
-            e.printStackTrace();
-            return null;
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
-            return null;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+
+    protected void getXMLResult(String url, String soapAction, SoapObject request) {
+        this.execute(new MPTaskParams[]{new MPTaskParams(url, soapAction, request)});
     }
 
     //send webservice
-    public Object SendSimpleSMS2(String to, String from, String text, boolean isFlash) {
+    public void SendSimpleSMS2(String to, String from, String text, boolean isFlash) {
 
         String METHOD_NAME = "SendSimpleSMS2";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -126,11 +98,10 @@ public class SoapClient {
         request.addProperty("isflash", String.valueOf(isFlash));
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(SEND_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(SEND_URL, SOAP_ACTION, request);
     }
-    public Object SendByBaseNumber(String[] text, String to, long bodyId) {
+
+    public void SendByBaseNumber(String[] text, String to, long bodyId) {
 
         String METHOD_NAME = "SendByBaseNumber";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -144,11 +115,10 @@ public class SoapClient {
         request.addProperty("bodyId", String.valueOf(bodyId));
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(SEND_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(SEND_URL, SOAP_ACTION, request);
     }
-    public Object SendByBaseNumber2(String text, String to, long bodyId) {
+
+    public void SendByBaseNumber2(String text, String to, long bodyId) {
 
         String METHOD_NAME = "SendByBaseNumber2";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -161,11 +131,10 @@ public class SoapClient {
         request.addProperty("bodyId", String.valueOf(bodyId));
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(SEND_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(SEND_URL, SOAP_ACTION, request);
     }
-    public Object GetCredit() {
+
+    public void GetCredit() {
 
         String METHOD_NAME = "GetCredit";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -175,11 +144,10 @@ public class SoapClient {
         request.addProperty("password", Password);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(SEND_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(SEND_URL, SOAP_ACTION, request);
     }
-    public Object GetDeliveries(long[] recIds) {
+
+    public void GetDeliveries(long[] recIds) {
 
         String METHOD_NAME = "GetDeliveries";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -191,11 +159,10 @@ public class SoapClient {
         request.addProperty("recIds", _recIds);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(SEND_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(SEND_URL, SOAP_ACTION, request);
     }
-    public Object GetSmsPrice(int irancellCount, int mtnCount, String from, String text) {
+
+    public void GetSmsPrice(int irancellCount, int mtnCount, String from, String text) {
 
         String METHOD_NAME = "GetSmsPrice";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -209,11 +176,10 @@ public class SoapClient {
         request.addProperty("text", text);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(SEND_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(SEND_URL, SOAP_ACTION, request);
     }
-    public Object SendSimpleSMS(String[] to, String from, String text, boolean isFlash) {
+
+    public void SendSimpleSMS(String[] to, String from, String text, boolean isFlash) {
 
         String METHOD_NAME = "SendSimpleSMS";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -228,11 +194,10 @@ public class SoapClient {
         request.addProperty("isflash", String.valueOf(isFlash));
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(SEND_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(SEND_URL, SOAP_ACTION, request);
     }
-    public Object SendSms(String to, String from, String text, boolean isFlash, String udh, long[] recIds, Base64 status) {
+
+    public void SendSms(String to, String from, String text, boolean isFlash, String udh, long[] recIds, Base64 status) {
 
         String METHOD_NAME = "SendSms";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -250,11 +215,9 @@ public class SoapClient {
         request.addProperty("status", status);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(SEND_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(SEND_URL, SOAP_ACTION, request);
     }
-    public Object getMessages(int location, String from, int index, int count) {
+    public void getMessages(int location, String from, int index, int count) {
 
         String METHOD_NAME = "getMessages";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -268,14 +231,12 @@ public class SoapClient {
         request.addProperty("count", count);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(SEND_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(SEND_URL, SOAP_ACTION, request);
     }
 
 
     //receive webservice
-    public Object GetMessagesReceptions(int msgId, int fromRows) {
+    public void GetMessagesReceptions(int msgId, int fromRows) {
 
         String METHOD_NAME = "GetMessagesReceptions";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -287,11 +248,10 @@ public class SoapClient {
         request.addProperty("fromRows", fromRows);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(RECEIVE_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(RECEIVE_URL, SOAP_ACTION, request);
     }
-    public Object RemoveMessages2(int location, String msgIds) {
+
+    public void RemoveMessages2(int location, String msgIds) {
 
         String METHOD_NAME = "RemoveMessages2";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -303,11 +263,10 @@ public class SoapClient {
         request.addProperty("msgIds", msgIds);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(RECEIVE_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(RECEIVE_URL, SOAP_ACTION, request);
     }
-    public Object GetMessagesByDate(int location, String from, int index, int count, Date dateFrom, Date dateTo) {
+
+    public void GetMessagesByDate(int location, String from, int index, int count, Date dateFrom, Date dateTo) {
 
         String METHOD_NAME = "GetMessagesByDate";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -323,11 +282,10 @@ public class SoapClient {
         request.addProperty("dateTo", dateTo);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(RECEIVE_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(RECEIVE_URL, SOAP_ACTION, request);
     }
-    public Object GetUsersMessagesByDate(int location, String from, int index, int count, Date dateFrom, Date dateTo) {
+
+    public void GetUsersMessagesByDate(int location, String from, int index, int count, Date dateFrom, Date dateTo) {
 
         String METHOD_NAME = "GetUsersMessagesByDate";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -343,14 +301,12 @@ public class SoapClient {
         request.addProperty("dateTo", dateTo);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(RECEIVE_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(RECEIVE_URL, SOAP_ACTION, request);
     }
 
 
     //users webservice
-    public Object GetUserNumbers() {
+    public void GetUserNumbers() {
 
         String METHOD_NAME = "GetUserNumbers";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -360,11 +316,10 @@ public class SoapClient {
         request.addProperty("password", Password);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(USERS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(USERS_URL, SOAP_ACTION, request);
     }
-    public Object GetUserTransactions(String targetUsername, String creditType, String keyword, Date dateFrom, Date dateTo) {
+
+    public void GetUserTransactions(String targetUsername, String creditType, String keyword, Date dateFrom, Date dateTo) {
 
         String METHOD_NAME = "GetUserTransactions";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -379,11 +334,10 @@ public class SoapClient {
         request.addProperty("dateTo", dateTo);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(USERS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(USERS_URL, SOAP_ACTION, request);
     }
-    public Object GetUsers() {
+
+    public void GetUsers() {
 
         String METHOD_NAME = "GetUsers";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -393,11 +347,10 @@ public class SoapClient {
         request.addProperty("password", Password);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(USERS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(USERS_URL, SOAP_ACTION, request);
     }
-    public Object HasFilter(String text) {
+
+    public void HasFilter(String text) {
 
         String METHOD_NAME = "HasFilter";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -408,11 +361,10 @@ public class SoapClient {
         request.addProperty("text", text);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(USERS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(USERS_URL, SOAP_ACTION, request);
     }
-    public Object RemoveUser(String targetUsername) {
+
+    public void RemoveUser(String targetUsername) {
 
         String METHOD_NAME = "RemoveUser";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -423,11 +375,10 @@ public class SoapClient {
         request.addProperty("targetUsername", targetUsername);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(USERS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(USERS_URL, SOAP_ACTION, request);
     }
-    public Object GetProvinces() {
+
+    public void GetProvinces() {
 
         String METHOD_NAME = "GetProvinces";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -437,11 +388,10 @@ public class SoapClient {
         request.addProperty("password", Password);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(USERS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(USERS_URL, SOAP_ACTION, request);
     }
-    public Object GetCities(int provinceId) {
+
+    public void GetCities(int provinceId) {
 
         String METHOD_NAME = "GetCities";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -452,11 +402,10 @@ public class SoapClient {
         request.addProperty("provinceId", provinceId);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(USERS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(USERS_URL, SOAP_ACTION, request);
     }
-    public Object GetExpireDate() {
+
+    public void GetExpireDate() {
 
         String METHOD_NAME = "GetExpireDate";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -466,11 +415,10 @@ public class SoapClient {
         request.addProperty("password", Password);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(USERS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(USERS_URL, SOAP_ACTION, request);
     }
-    public Object AddPayment(String name, String family, String bankName, String code, double amount, String cardNumber) {
+
+    public void AddPayment(String name, String family, String bankName, String code, double amount, String cardNumber) {
 
         String METHOD_NAME = "AddPayment";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -486,11 +434,10 @@ public class SoapClient {
         request.addProperty("cardNumber", cardNumber);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(USERS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(USERS_URL, SOAP_ACTION, request);
     }
-    public Object AuthenticateUser() {
+
+    public void AuthenticateUser() {
 
         String METHOD_NAME = "AuthenticateUser";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -500,11 +447,10 @@ public class SoapClient {
         request.addProperty("password", Password);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(USERS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(USERS_URL, SOAP_ACTION, request);
     }
-    public Object ChangeUserCredit(double amount, String description, String targetUsername, boolean GetTax) {
+
+    public void ChangeUserCredit(double amount, String description, String targetUsername, boolean GetTax) {
 
         String METHOD_NAME = "ChangeUserCredit";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -518,11 +464,10 @@ public class SoapClient {
         request.addProperty("GetTax", String.valueOf(GetTax));
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(USERS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(USERS_URL, SOAP_ACTION, request);
     }
-    public Object AuthenticateUser(String mobileNumber, String emailAddress, String targetUsername) {
+
+    public void AuthenticateUser(String mobileNumber, String emailAddress, String targetUsername) {
 
         String METHOD_NAME = "AuthenticateUser";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -535,11 +480,10 @@ public class SoapClient {
         request.addProperty("targetUsername", targetUsername);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(USERS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(USERS_URL, SOAP_ACTION, request);
     }
-    public Object GetUserBasePrice(String targetUsername) {
+
+    public void GetUserBasePrice(String targetUsername) {
 
         String METHOD_NAME = "GetUserBasePrice";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -550,11 +494,10 @@ public class SoapClient {
         request.addProperty("targetUsername", targetUsername);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(USERS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(USERS_URL, SOAP_ACTION, request);
     }
-    public Object GetUserCredit(String targetUsername) {
+
+    public void GetUserCredit(String targetUsername) {
 
         String METHOD_NAME = "GetUserCredit";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -565,11 +508,10 @@ public class SoapClient {
         request.addProperty("targetUsername", targetUsername);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(USERS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(USERS_URL, SOAP_ACTION, request);
     }
-    public Object GetUserDetails(String targetUsername) {
+
+    public void GetUserDetails(String targetUsername) {
 
         String METHOD_NAME = "GetUserDetails";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -580,11 +522,10 @@ public class SoapClient {
         request.addProperty("targetUsername", targetUsername);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(USERS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(USERS_URL, SOAP_ACTION, request);
     }
-    public Object GetUserDetails(String targetUsername, String creditType, Date dateFrom, Date dateTo, String keyword) {
+
+    public void GetUserDetails(String targetUsername, String creditType, Date dateFrom, Date dateTo, String keyword) {
 
         String METHOD_NAME = "GetUserDetails";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -600,14 +541,12 @@ public class SoapClient {
 
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(USERS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(USERS_URL, SOAP_ACTION, request);
     }
 
 
     //contacts webservice
-    public Object AddGroup(String groupName, String Descriptions, boolean showToChilds) {
+    public void AddGroup(String groupName, String Descriptions, boolean showToChilds) {
 
         String METHOD_NAME = "AddGroup";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -620,11 +559,9 @@ public class SoapClient {
         request.addProperty("showToChilds", String.valueOf(showToChilds));
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(CONTACTS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(CONTACTS_URL, SOAP_ACTION, request);
     }
-    public Object CheckMobileExistInContact(String mobileNumber) {
+    public void CheckMobileExistInContact(String mobileNumber) {
 
         String METHOD_NAME = "CheckMobileExistInContact";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -635,11 +572,10 @@ public class SoapClient {
         request.addProperty("mobileNumber", mobileNumber);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(CONTACTS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(CONTACTS_URL, SOAP_ACTION, request);
     }
-    public Object GetContacts(int groupId, String keyword, int from, int count) {
+
+    public void GetContacts(int groupId, String keyword, int from, int count) {
 
         String METHOD_NAME = "GetContacts";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -653,11 +589,10 @@ public class SoapClient {
         request.addProperty("count", count);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(CONTACTS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(CONTACTS_URL, SOAP_ACTION, request);
     }
-    public Object GetGroups() {
+
+    public void GetGroups() {
 
         String METHOD_NAME = "GetGroups";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -667,11 +602,10 @@ public class SoapClient {
         request.addProperty("password", Password);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(CONTACTS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(CONTACTS_URL, SOAP_ACTION, request);
     }
-    public Object RemoveContact(String mobilenumber) {
+
+    public void RemoveContact(String mobilenumber) {
 
         String METHOD_NAME = "RemoveContact";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -682,11 +616,10 @@ public class SoapClient {
         request.addProperty("mobilenumber", mobilenumber);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(CONTACTS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(CONTACTS_URL, SOAP_ACTION, request);
     }
-    public Object GetContactEvents(int contactId) {
+
+    public void GetContactEvents(int contactId) {
 
         String METHOD_NAME = "GetContactEvents";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -697,14 +630,12 @@ public class SoapClient {
         request.addProperty("contactId", contactId);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(CONTACTS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(CONTACTS_URL, SOAP_ACTION, request);
     }
 
 
     //actions webservice
-    public Object GetBranchs(int owner) {
+    public void GetBranchs(int owner) {
 
         String METHOD_NAME = "GetBranchs";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -715,11 +646,10 @@ public class SoapClient {
         request.addProperty("owner", owner);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
     }
-    public Object AddBranch(int owner, String branchName) {
+
+    public void AddBranch(int owner, String branchName) {
 
         String METHOD_NAME = "AddBranch";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -731,11 +661,10 @@ public class SoapClient {
         request.addProperty("branchName", branchName);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
     }
-    public Object AddNumber(int branchId, String[] mobileNumbers) {
+
+    public void AddNumber(int branchId, String[] mobileNumbers) {
 
         String METHOD_NAME = "AddNumber";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -748,11 +677,10 @@ public class SoapClient {
         request.addProperty("mobileNumbers", _numbers);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
     }
-    public Object RemoveBranch(int branchId) {
+
+    public void RemoveBranch(int branchId) {
 
         String METHOD_NAME = "RemoveBranch";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -763,11 +691,10 @@ public class SoapClient {
         request.addProperty("branchId", branchId);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
     }
-    public Object AddBulk(String from, int branch, Byte bulkType, String title, String message,
+
+    public void AddBulk(String from, int branch, Byte bulkType, String title, String message,
                           String rangeFrom, String rangeTo, Date DateToSend, int requestCount, int rowFrom) {
 
         String METHOD_NAME = "AddBulk";
@@ -788,11 +715,10 @@ public class SoapClient {
         request.addProperty("rowFrom", rowFrom);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
     }
-    public Object GetBulkCount(int branch, String rangeFrom, String rangeTo) {
+
+    public void GetBulkCount(int branch, String rangeFrom, String rangeTo) {
 
         String METHOD_NAME = "GetBulkCount";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -805,11 +731,10 @@ public class SoapClient {
         request.addProperty("rangeTo", rangeTo);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
     }
-    public Object GetBulkReceptions(int bulkId, int fromRows) {
+
+    public void GetBulkReceptions(int bulkId, int fromRows) {
 
         String METHOD_NAME = "GetBulkReceptions";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -821,11 +746,10 @@ public class SoapClient {
         request.addProperty("fromRows", fromRows);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
     }
-    public Object GetBulkStatus(int bulkId, int sent, int failed, byte status) {
+
+    public void GetBulkStatus(int bulkId, int sent, int failed, byte status) {
 
         String METHOD_NAME = "GetBulkStatus";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -839,11 +763,10 @@ public class SoapClient {
         request.addProperty("status", status);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
     }
-    public Object GetTodaySent() {
+
+    public void GetTodaySent() {
 
         String METHOD_NAME = "GetTodaySent";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -853,11 +776,10 @@ public class SoapClient {
         request.addProperty("password", Password);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
     }
-    public Object GetTotalSent() {
+
+    public void GetTotalSent() {
 
         String METHOD_NAME = "GetTotalSent";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -867,11 +789,10 @@ public class SoapClient {
         request.addProperty("password", Password);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
     }
-    public Object RemoveBulk(int bulkId) {
+
+    public void RemoveBulk(int bulkId) {
 
         String METHOD_NAME = "RemoveBulk";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -882,11 +803,10 @@ public class SoapClient {
         request.addProperty("bulkId", bulkId);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
     }
-    public Object SendMultipleSMS(String[] to, String from, String[] text, boolean isflash, String udh,
+
+    public void SendMultipleSMS(String[] to, String from, String[] text, boolean isflash, String udh,
                                   long[] recIds) {
 
         String METHOD_NAME = "SendMultipleSMS";
@@ -906,11 +826,10 @@ public class SoapClient {
         request.addProperty("recId", _recIds);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
     }
-    public Object UpdateBulkDelivery(int bulkId) {
+
+    public void UpdateBulkDelivery(int bulkId) {
 
         String METHOD_NAME = "UpdateBulkDelivery";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -921,14 +840,12 @@ public class SoapClient {
         request.addProperty("bulkId", bulkId);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(ACTIONS_URL, SOAP_ACTION, request);
     }
 
 
     //schedule webservice
-    public Object AddSchedule(String to, String from, String text, boolean isFlash, Date scheduleDateTime,
+    public void AddSchedule(String to, String from, String text, boolean isFlash, Date scheduleDateTime,
                               String period) {
 
         String METHOD_NAME = "AddSchedule";
@@ -945,11 +862,10 @@ public class SoapClient {
         request.addProperty("period", period);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(SCHEDULE_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(SCHEDULE_URL, SOAP_ACTION, request);
     }
-    public Object AddMultipleSchedule(String[] to, String from, String[] text, boolean isFlash, Date[] scheduleDateTime, String period) {
+
+    public void AddMultipleSchedule(String[] to, String from, String[] text, boolean isFlash, Date[] scheduleDateTime, String period) {
 
         String METHOD_NAME = "AddMultipleSchedule";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -968,11 +884,10 @@ public class SoapClient {
         request.addProperty("period", period);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(SCHEDULE_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(SCHEDULE_URL, SOAP_ACTION, request);
     }
-    public Object AddNewUsance(String to, String from, String text, boolean isFlash, int countrepeat,
+
+    public void AddNewUsance(String to, String from, String text, boolean isFlash, int countrepeat,
                                Date scheduleEndDateTime, String periodType) {
 
         String METHOD_NAME = "AddNewUsance";
@@ -990,11 +905,10 @@ public class SoapClient {
         request.addProperty("periodType", periodType);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(SCHEDULE_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(SCHEDULE_URL, SOAP_ACTION, request);
     }
-    public Object GetScheduleStatus(int scheduleId) {
+
+    public void GetScheduleStatus(int scheduleId) {
 
         String METHOD_NAME = "GetScheduleStatus";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -1005,11 +919,10 @@ public class SoapClient {
         request.addProperty("scheduleId", scheduleId);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(SCHEDULE_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(SCHEDULE_URL, SOAP_ACTION, request);
     }
-    public Object RemoveSchedule(int scheduleId) {
+
+    public void RemoveSchedule(int scheduleId) {
 
         String METHOD_NAME = "RemoveSchedule";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -1020,15 +933,13 @@ public class SoapClient {
         request.addProperty("scheduleId", scheduleId);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(SCHEDULE_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(SCHEDULE_URL, SOAP_ACTION, request);
     }
 
 
 
     //voice webservice
-    public Object GetSendSMSWithSpeechTextStatus(long recId) {
+    public void GetSendSMSWithSpeechTextStatus(long recId) {
 
         String METHOD_NAME = "GetSendSMSWithSpeechTextStatus";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -1039,11 +950,10 @@ public class SoapClient {
         request.addProperty("recId", recId);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(VOICE_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(VOICE_URL, SOAP_ACTION, request);
     }
-    public Object SendBulkSpeechText(String title, String body, String receivers, String DateToSend, int repeatCount) {
+
+    public void SendBulkSpeechText(String title, String body, String receivers, String DateToSend, int repeatCount) {
 
         String METHOD_NAME = "SendBulkSpeechText";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -1058,11 +968,10 @@ public class SoapClient {
         request.addProperty("repeatCount", repeatCount);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(VOICE_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(VOICE_URL, SOAP_ACTION, request);
     }
-    public Object SendBulkVoiceSMS(String title, int voiceFileId, String receivers, String DateToSend, int repeatCount) {
+
+    public void SendBulkVoiceSMS(String title, int voiceFileId, String receivers, String DateToSend, int repeatCount) {
 
         String METHOD_NAME = "SendBulkVoiceSMS";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -1077,11 +986,10 @@ public class SoapClient {
         request.addProperty("repeatCount", repeatCount);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(VOICE_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(VOICE_URL, SOAP_ACTION, request);
     }
-    public Object SendSMSWithSpeechText(String smsBody, String speechBody, String from, String to) {
+
+    public void SendSMSWithSpeechText(String smsBody, String speechBody, String from, String to) {
 
         String METHOD_NAME = "SendSMSWithSpeechText";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -1095,11 +1003,10 @@ public class SoapClient {
         request.addProperty("speechBody", speechBody);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(VOICE_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(VOICE_URL, SOAP_ACTION, request);
     }
-    public Object SendSMSWithSpeechTextBySchduleDate(String smsBody, String speechBody, String from, String to,
+
+    public void SendSMSWithSpeechTextBySchduleDate(String smsBody, String speechBody, String from, String to,
                                                      Date scheduleDate) {
 
         String METHOD_NAME = "SendSMSWithSpeechTextBySchduleDate";
@@ -1115,11 +1022,10 @@ public class SoapClient {
         request.addProperty("scheduleDate", scheduleDate);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(VOICE_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(VOICE_URL, SOAP_ACTION, request);
     }
-    public Object UploadVoiceFile(String title, String base64StringFile) {
+
+    public void UploadVoiceFile(String title, String base64StringFile) {
 
         String METHOD_NAME = "UploadVoiceFile";
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -1131,10 +1037,21 @@ public class SoapClient {
         request.addProperty("base64StringFile", base64StringFile);
 
         String SOAP_ACTION = NAMESPACE + METHOD_NAME;
-        SoapObject response = getXMLResult(VOICE_URL, SOAP_ACTION, request);
-
-        return response == null ? null : response.getProperty(0);
+        getXMLResult(VOICE_URL, SOAP_ACTION, request);
     }
 
+}
 
+
+
+class MPTaskParams{
+    String url;
+    String soapAction;
+    SoapObject request;
+
+    MPTaskParams(String _url, String _action, SoapObject _req){
+        url = _url;
+        soapAction = _action;
+        request = _req;
+    }
 }

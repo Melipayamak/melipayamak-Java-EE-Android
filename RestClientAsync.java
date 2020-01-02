@@ -1,15 +1,19 @@
 package ir.mp.java.mpjava;
 
+import android.os.AsyncTask;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
 
-public class RestClient {
+public class RestClientAsync extends AsyncTask<MPRestTaskParams, Integer, String> {
 
     private final String endpoint = "https://rest.payamak-panel.com/api/SendSMS/";
 
@@ -25,14 +29,24 @@ public class RestClient {
     private String Password;
 
 
-    public RestClient(String username, String password)  {
+    public RestClientAsync(String username, String password)  {
         UserName = username;
         Password = password;
     }
 
-    private String makeRequest(URL url, Hashtable<String, String> values) throws IOException {
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
+    @Override
+    protected String doInBackground(MPRestTaskParams... params) {
+        HttpURLConnection conn = null;
+        try {
+            conn = (HttpURLConnection) params[0].url.openConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            conn.setRequestMethod("POST");
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        }
 
         StringBuilder result = new StringBuilder();
         String line;
@@ -43,7 +57,7 @@ public class RestClient {
 
             //consider encoding
             OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
-            writer.write(getPostParamString(values));
+            writer.write(getPostParamString(params[0].values));
             writer.flush();
             writer.close();
 
@@ -53,6 +67,8 @@ public class RestClient {
                 result.append(line).append('\n');
             }
 
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
             conn.disconnect();
         }
@@ -80,7 +96,7 @@ public class RestClient {
 
 
 
-    public String Send(String to, String from, String message, boolean isflash) throws IOException {
+    public void Send(String to, String from, String message, boolean isflash) throws IOException {
 
         Hashtable<String, String> values = new Hashtable<>();
         values.put("username", UserName);
@@ -91,10 +107,10 @@ public class RestClient {
         values.put("isFlash" , String.valueOf(isflash));
 
         URL url = new URL(endpoint + sendOp);
-        return makeRequest(url, values);
+        execute(new MPRestTaskParams[]{new MPRestTaskParams(url, values)});
     }
 
-    public String SendByBaseNumber(String text, String to, long bodyId) throws IOException {
+    public void SendByBaseNumber(String text, String to, long bodyId) throws IOException {
 
         Hashtable<String, String> values = new Hashtable<>();
         values.put("username", UserName);
@@ -104,10 +120,10 @@ public class RestClient {
         values.put("bodyId" , String.valueOf(bodyId));
 
         URL url = new URL(endpoint + sendByBaseNumber);
-        return makeRequest(url, values);
+        execute(new MPRestTaskParams[]{new MPRestTaskParams(url, values)});
     }
 
-    public String GetDelivery(long recid) throws IOException {
+    public void GetDelivery(long recid) throws IOException {
 
         Hashtable<String, String> values = new Hashtable<>();
         values.put("username", UserName);
@@ -115,11 +131,11 @@ public class RestClient {
         values.put("recID" , String.valueOf(recid));
 
         URL url = new URL(endpoint + getDeliveryOp);
-        return makeRequest(url, values);
+        execute(new MPRestTaskParams[]{new MPRestTaskParams(url, values)});
     }
 
 
-    public String GetMessages(int location, String from, String index, int count) throws IOException {
+    public void GetMessages(int location, String from, String index, int count) throws IOException {
 
         Hashtable<String, String> values = new Hashtable<>();
         values.put("username", UserName);
@@ -130,38 +146,49 @@ public class RestClient {
         values.put("Count", String.valueOf(count));
 
         URL url = new URL(endpoint + getMessagesOp);
-        return makeRequest(url, values);
+        execute(new MPRestTaskParams[]{new MPRestTaskParams(url, values)});
     }
 
-    public String GetCredit() throws IOException {
+    public void GetCredit() throws IOException {
 
         Hashtable<String, String> values = new Hashtable<>();
         values.put("username", UserName);
         values.put("password", Password);
 
         URL url = new URL(endpoint + getCreditOp);
-        return makeRequest(url, values);
+        execute(new MPRestTaskParams[]{new MPRestTaskParams(url, values)});
     }
 
-    public String GetBasePrice() throws IOException {
+    public void GetBasePrice() throws IOException {
 
         Hashtable<String, String> values = new Hashtable<>();
         values.put("username", UserName);
         values.put("password", Password);
 
         URL url = new URL(endpoint + getBasePriceOp);
-        return makeRequest(url, values);
+        execute(new MPRestTaskParams[]{new MPRestTaskParams(url, values)});
     }
 
-    public String GetUserNumbers() throws IOException {
+    public void GetUserNumbers() throws IOException {
 
         Hashtable<String, String> values = new Hashtable<>();
         values.put("username", UserName);
         values.put("password", Password);
 
         URL url = new URL(endpoint + getUserNumbersOp);
-        return makeRequest(url, values);
+        execute(new MPRestTaskParams[]{new MPRestTaskParams(url, values)});
     }
+
 
 }
 
+
+class MPRestTaskParams{
+    URL url;
+    Hashtable<String, String> values;
+
+    MPRestTaskParams(URL _url, Hashtable<String, String> _values){
+        url = _url;
+        values = _values;
+    }
+}
